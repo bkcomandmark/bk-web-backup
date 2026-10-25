@@ -1,0 +1,38 @@
+/* BK WEB Backup — tableau de bord. */
+.bkwb-title { display: flex; align-items: center; gap: 8px; }
+.bkwb-title .dashicons { font-size: 28px; width: 28px; height: 28px; color: #2271b1; }
+
+.bkwb-cards { display: grid; grid-template-columns: repeat( auto-fill, minmax( 220px, 1fr ) ); gap: 12px; margin: 16px 0; }
+.bkwb-card { background: #fff; border: 1px solid #dcdcde; border-left: 4px solid #8c8f94; border-radius: 4px; padding: 12px 14px; }
+.bkwb-card h3 { margin: 0 0 6px; font-size: 13px; color: #50575e; text-transform: uppercase; letter-spacing: .02em; }
+.bkwb-card p { margin: 0; line-height: 1.6; }
+.bkwb-card.bkwb-good { border-left-color: #00a32a; }
+.bkwb-card.bkwb-warn { border-left-color: #dba617; }
+.bkwb-card.bkwb-bad { border-left-color: #d63638; }
+
+.bkwb-panel { background: #fff; border: 1px solid #dcdcde; border-radius: 4px; padding: 4px 18px 14px; margin: 16px 0; }
+.bkwb-panel h2 { font-size: 16px; margin: 14px 0 10px; }
+.bkwb-panel.bkwb-danger { border-color: #d63638; box-shadow: 0 0 0 1px #d63638; }
+.bkwb-panel .form-table th { width: 260px; }
+
+.bkwb-progress { background: #f0f0f1; border-radius: 10px; height: 14px; overflow: hidden; }
+.bkwb-progress div { background: #2271b1; height: 100%; transition: width .4s ease; }
+.bkwb-log { max-height: 220px; overflow: auto; font-family: Menlo, Consolas, monospace; font-size: 12px; background: #f6f7f7; padding: 8px 10px; margin: 8px 0; border-radius: 4px; }
+.bkwb-log li { margin: 0 0 2px; }
+
+.bkwb-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; background: #f0f0f1; }
+.bkwb-badge.bkwb-success { background: #edfaef; color: #00701a; }
+.bkwb-badge.bkwb-partial { background: #fcf9e8; color: #8a6100; }
+.bkwb-badge.bkwb-failed { background: #fcf0f1; color: #b32d2e; }
+
+.bkwb-ok { color: #00701a; font-weight: 600; }
+.bkwb-warn { color: #8a6100; font-weight: 600; }
+.bkwb-bad { color: #b32d2e; font-weight: 600; }
+
+.bkwb-code { background: #1d2327; color: #f0f0f1; padding: 12px 14px; border-radius: 4px; overflow: auto; font-size: 12px; line-height: 1.6; }
+.bkwb-journal { max-height: 520px; white-space: pre-wrap; }
+#bkwb-result { margin: 16px 0; }
+
+@media ( max-width: 782px ) {
+	.bkwb-panel .form-table th { width: auto; }
+}
