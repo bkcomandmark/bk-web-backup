@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       BK WEB Backup
  * Description:       Sauvegardes automatiques (base de données + fichiers) vers un stockage S3 (OVHcloud), avec copie locale hors du site, alertes par e-mail, restauration depuis l'admin et script de secours.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            BK COM AND MARK
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BKWB_VERSION', '1.0.0' );
+define( 'BKWB_VERSION', '1.1.0' );
 define( 'BKWB_FILE', __FILE__ );
 define( 'BKWB_DIR', __DIR__ );
 

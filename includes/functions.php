@@ -91,6 +91,7 @@ function bkwb_get_status() {
 			'contenu'   => 'db' === BKWB_Settings::get( 'content' ) ? 'db' : 'files+db',
 			'prochaine' => $next ? gmdate( 'c', $next ) : null,
 			'cron_serveur_actif' => BKWB_Scheduler::cron_recently_seen(),
+			'cron_mode'          => BKWB_Scheduler::cron_mode(),
 		),
 		'stockage_distant'            => array(
 			'configure'                => $remote,

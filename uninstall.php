@@ -8,7 +8,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-foreach ( array( 'bkwb_settings', 'bkwb_history', 'bkwb_local_dir', 'bkwb_tick_token', 'bkwb_cron_seen', 'bkwb_installed', 'bkwb_late_alert', 'bkwb_front_maintenance' ) as $bkwb_option ) {
+foreach ( array( 'bkwb_settings', 'bkwb_history', 'bkwb_local_dir', 'bkwb_tick_token', 'bkwb_cron_seen', 'bkwb_external_cron_seen', 'bkwb_installed', 'bkwb_late_alert', 'bkwb_front_maintenance' ) as $bkwb_option ) {
 	delete_option( $bkwb_option );
 }
 delete_transient( 'bkwb_remote_list' );

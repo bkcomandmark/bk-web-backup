@@ -4,6 +4,8 @@
  *
  * Sur o2switch, pour que les sauvegardes partent à l'heure même sans visite et sans limite de
  * temps, on ajoute dans cPanel une tâche cron qui lance bin/cron.php toutes les 15 minutes.
+ * Sans accès à l'hébergement, un service extérieur peut à la place appeler wp-cron.php à
+ * intervalle régulier : ce réveil externe est reconnu aussi.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,14 +14,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class BKWB_Scheduler {
 
-	const HOOK      = 'bkwb_scheduled_backup';
-	const WATCHDOG  = 'bkwb_watchdog';
-	const CRON_SEEN = 'bkwb_cron_seen';
+	const HOOK          = 'bkwb_scheduled_backup';
+	const WATCHDOG      = 'bkwb_watchdog';
+	const CRON_SEEN     = 'bkwb_cron_seen';
+	const EXTERNAL_SEEN = 'bkwb_external_cron_seen';
 
 	public static function init() {
 		add_action( self::HOOK, array( __CLASS__, 'run_scheduled' ) );
 		add_action( self::WATCHDOG, array( __CLASS__, 'watchdog' ) );
 		add_action( 'init', array( __CLASS__, 'ensure_events' ) );
+		self::detect_external_cron();
+	}
+
+	/**
+	 * Note un appel de wp-cron.php venu de l'extérieur. Ceux que WordPress lance lui-même après
+	 * une visite portent le paramètre doing_wp_cron ; bin/cron.php passe par la ligne de commande.
+	 */
+	private static function detect_external_cron() {
+		if ( ! defined( 'DOING_CRON' ) || ! DOING_CRON || BKWB_Runner::is_cli() || isset( $_GET['doing_wp_cron'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return;
+		}
+		if ( time() - (int) get_option( self::EXTERNAL_SEEN, 0 ) >= MINUTE_IN_SECONDS ) {
+			update_option( self::EXTERNAL_SEEN, time(), false );
+		}
 	}
 
 	public static function activate() {
@@ -162,7 +179,28 @@ class BKWB_Scheduler {
 		update_option( self::CRON_SEEN, time(), false );
 	}
 
+	/**
+	 * Comment le site est réveillé régulièrement : « serveur » (bin/cron.php), « externe »
+	 * (appels de wp-cron.php) ou null si rien n'est passé depuis deux heures.
+	 */
+	public static function cron_mode() {
+		if ( time() - (int) get_option( self::CRON_SEEN, 0 ) < 2 * HOUR_IN_SECONDS ) {
+			return 'serveur';
+		}
+		if ( time() - (int) get_option( self::EXTERNAL_SEEN, 0 ) < 2 * HOUR_IN_SECONDS ) {
+			return 'externe';
+		}
+		return null;
+	}
+
+	/**
+	 * Dernier passage de ce qui réveille le site (timestamp), 0 si inconnu.
+	 */
+	public static function cron_last_seen() {
+		return (int) get_option( 'externe' === self::cron_mode() ? self::EXTERNAL_SEEN : self::CRON_SEEN, 0 );
+	}
+
 	public static function cron_recently_seen() {
-		return time() - (int) get_option( self::CRON_SEEN, 0 ) < 2 * HOUR_IN_SECONDS;
+		return null !== self::cron_mode();
 	}
 }

@@ -2,7 +2,7 @@
 Contributors: bkcomandmark
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPL-2.0-or-later
 
 Sauvegardes automatiques (fichiers + base de données) vers OVHcloud Object Storage (S3),
@@ -35,6 +35,10 @@ copie locale hors du site, alertes e-mail, restauration depuis l'admin et script
    (ou les constantes BKWB_S3_* dans wp-config.php), enregistrer, puis « Tester la connexion ».
 4. cPanel → Tâches Cron, toutes les 15 minutes :
      php /home/IDENTIFIANT/DOSSIER-DU-SITE/wp-content/plugins/bk-web-backup/bin/cron.php >/dev/null 2>&1
+   Sans accès à l'hébergement : faire appeler https://SITE/wp-cron.php toutes les 5 minutes
+   par un service extérieur (NAS, serveur, service de tâches planifiées). Le plugin reconnaît
+   ce réveil externe (« Réveil externe actif ») ; la tâche cron du serveur reste préférable,
+   car elle n'a pas de limite de temps.
 5. Lancer une première sauvegarde depuis le tableau de bord.
 6. Télécharger le script de secours et le ranger hors du serveur.
 

@@ -133,8 +133,8 @@ class BKWB_Admin {
 		$last     = BKWB_Log::last_backup();
 		$next     = wp_next_scheduled( BKWB_Scheduler::HOOK );
 		$s3       = BKWB_Settings::s3_ready();
-		$cron     = BKWB_Scheduler::cron_recently_seen();
-		$cron_at  = (int) get_option( BKWB_Scheduler::CRON_SEEN, 0 );
+		$cron     = BKWB_Scheduler::cron_mode();
+		$cron_at  = BKWB_Scheduler::cron_last_seen();
 		$interval = BKWB_Scheduler::interval();
 		$late     = $interval && ( ! $last_ok || time() - $last_ok['finished'] > $interval + 6 * HOUR_IN_SECONDS );
 
@@ -172,9 +172,13 @@ class BKWB_Admin {
 		self::card( 'Stockage OVH', $body, $s3 ? 'good' : 'bad' );
 
 		// Tâche cron.
-		$body = $cron
-			? '<strong>Active</strong><br>Dernier passage il y a ' . esc_html( human_time_diff( $cron_at ) ) . '.'
-			: '<strong>Non détectée</strong><br>Les sauvegardes dépendent des visites du site. <a href="' . esc_url( self::url( 'settings' ) ) . '#bkwb-cron">Activer la tâche cron</a>';
+		if ( 'serveur' === $cron ) {
+			$body = '<strong>Active</strong><br>Dernier passage il y a ' . esc_html( human_time_diff( $cron_at ) ) . '.';
+		} elseif ( 'externe' === $cron ) {
+			$body = '<strong>Réveil externe actif</strong><br>wp-cron.php appelé il y a ' . esc_html( human_time_diff( $cron_at ) ) . '.';
+		} else {
+			$body = '<strong>Non détectée</strong><br>Les sauvegardes dépendent des visites du site. <a href="' . esc_url( self::url( 'settings' ) ) . '#bkwb-cron">Activer la tâche cron</a>';
+		}
 		self::card( 'Tâche cron du serveur', $body, $cron ? 'good' : 'warn' );
 
 		echo '</div>';
@@ -374,7 +378,13 @@ class BKWB_Admin {
 		echo '<div class="bkwb-panel" id="bkwb-cron"><h2>Tâche cron (o2switch)</h2>';
 		echo '<p>Pour que les sauvegardes partent à l’heure même sans visite, et sans limite de temps, ajoutez cette tâche dans <strong>cPanel → Tâches Cron</strong>, réglage « Toutes les 15 minutes » (<code>*/15 * * * *</code>) :</p>';
 		echo '<p><input type="text" readonly class="large-text code" onclick="this.select()" value="' . esc_attr( $php . ' ' . $cron . ' >/dev/null 2>&1' ) . '"></p>';
-		echo '<p class="description">État : ' . ( BKWB_Scheduler::cron_recently_seen() ? '<span class="bkwb-ok">tâche cron détectée</span>' : '<span class="bkwb-warn">pas encore détectée</span>' ) . '. Facultatif : ajoutez <code>define( \'DISABLE_WP_CRON\', true );</code> dans wp-config.php pour ne plus déclencher WP-Cron à chaque visite.</p>';
+		$states = array(
+			'serveur' => '<span class="bkwb-ok">tâche cron détectée</span>',
+			'externe' => '<span class="bkwb-ok">réveil externe de wp-cron.php détecté</span> (la tâche cron du serveur reste préférable : pas de limite de temps)',
+		);
+		$mode   = BKWB_Scheduler::cron_mode();
+		echo '<p class="description">État : ' . ( $mode ? $states[ $mode ] : '<span class="bkwb-warn">pas encore détectée</span>' ) . '. Facultatif : ajoutez <code>define( \'DISABLE_WP_CRON\', true );</code> dans wp-config.php pour ne plus déclencher WP-Cron à chaque visite.</p>';
+		echo '<p class="description">Sans accès à l’hébergement : faites appeler <code>' . esc_html( site_url( 'wp-cron.php' ) ) . '</code> toutes les 5 minutes par un service extérieur (NAS, serveur, service de tâches planifiées).</p>';
 		echo '</div>';
 
 		echo '<div class="bkwb-panel"><h2>Réglages dans wp-config.php (recommandé pour la clé secrète)</h2>';
